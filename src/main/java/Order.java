@@ -91,7 +91,7 @@ public class Order {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, reference, creationDatetime, dishOrderList);
+        return Objects.hash(getId(), getReference(), getCreationDatetime(), getDishOrderList(), getType(), getStatus());
     }
 
     @Override
