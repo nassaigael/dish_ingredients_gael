@@ -14,11 +14,6 @@ public class Main {
         System.out.println("=== PRÉPARATION : Ajout de stock pour les tests ===\n");
         addStockForTesting();
 
-        // Optionnel : afficher le stock actuel après ajout (pour debug)
-        // printCurrentStock(1);  // Laitue
-        // printCurrentStock(2);  // Tomate
-        // printCurrentStock(3);  // Poulet
-
         System.out.println("\n=== TEST 1: Create a new order (status CREATED) ===\n");
         Order newOrder = createSimpleOrder();
         System.out.println("New order created:");
@@ -60,32 +55,33 @@ public class Main {
     }
 
     private void addStockForTesting() {
-        // Ajout de stock pour TOUS les ingrédients utilisés dans les tests
-        addStockToIngredient(1, 10.0, Unit.KG);  // Laitue (salade)
-        addStockToIngredient(2, 10.0, Unit.KG);  // Tomate (salade)
-        addStockToIngredient(3, 10.0, Unit.KG);  // Poulet (plat principal)
-        addStockToIngredient(4, 10.0, Unit.KG);  // Chocolat (gâteau du test 6)
+        addStockToIngredient(1, 5.0, Unit.KG);   // Laitue   (pour salade)
+        addStockToIngredient(2, 5.0, Unit.KG);   // Tomate   (pour salade)
+        addStockToIngredient(3, 5.0, Unit.KG);   // Poulet   (pour plat principal)
+        addStockToIngredient(4, 5.0, Unit.KG);   // Chocolat (pour gâteau)
+        addStockToIngredient(5, 5.0, Unit.KG);   // Beurre   (pour gâteau)
 
-        System.out.println("→ Stock ajouté : 10 kg pour chaque ingrédient clé");
+        System.out.println("→ Stock ajouté : 5 kg pour chaque ingrédient clé");
         System.out.println("→ Les commandes devraient maintenant passer la vérification stock.");
     }
 
     private void addStockToIngredient(int ingredientId, double quantity, Unit unit) {
         Ingredient ing = dataRetriever.findIngredientById(ingredientId);
         if (ing == null) {
-            System.out.println("Ingredient id " + ingredientId + " non trouvé → impossible d'ajouter du stock");
+            System.out.println("Ingredient id " + ingredientId + " non trouvé");
             return;
         }
 
         StockMovement movement = new StockMovement();
         movement.setType(MovementTypeEnum.IN);
-        movement.setCreationDatetime(Instant.now().minusSeconds(3600)); // il y a 1 heure
+        movement.setCreationDatetime(Instant.now().minusSeconds(3600));
 
         StockValue value = new StockValue();
         value.setQuantity(quantity);
         value.setUnit(unit);
         movement.setValue(value);
 
+        // Ajout en mémoire
         List<StockMovement> movements = ing.getStockMovementList();
         if (movements == null) {
             movements = new ArrayList<>();
@@ -95,17 +91,14 @@ public class Main {
 
         // Sauvegarde
         dataRetriever.saveIngredient(ing);
-        System.out.println("→ Ajouté " + quantity + " " + unit + " à " + ing.getName());
-    }
 
-    // Optionnel : pour debug rapide du stock actuel
-    private void printCurrentStock(int ingredientId) {
-        Ingredient ing = dataRetriever.findIngredientById(ingredientId);
-        if (ing != null) {
-            StockValue stock = ing.getStockValueAt(Instant.now());
-            System.out.println("Stock actuel de " + ing.getName() + " : " +
-                    (stock != null ? stock.getQuantity() + " " + stock.getUnit() : "Aucun stock"));
-        }
+        // RECHARGE l'ingrédient pour avoir les données fraîches
+        ing = dataRetriever.findIngredientById(ingredientId);
+
+        // Vérification immédiate
+        StockValue stockAfter = ing.getStockValueAt(Instant.now());
+        System.out.println("Après ajout → Stock de " + ing.getName() + " : " +
+                (stockAfter != null ? stockAfter.getQuantity() + " " + stockAfter.getUnit() : "NULL"));
     }
 
     private Order createSimpleOrder() {
@@ -120,11 +113,11 @@ public class Main {
 
         DishOrder line1 = new DishOrder();
         line1.setDish(salade);
-        line1.setQuantity(2);
+        line1.setQuantity(1);   // ← 1 salade → 0.2 kg laitue + 0.15 kg tomate (doit passer avec 5 kg ajoutés)
 
         DishOrder line2 = new DishOrder();
         line2.setDish(poulet);
-        line2.setQuantity(1);
+        line2.setQuantity(1);   // 1 poulet → 1 kg poulet
 
         order.setDishOrderList(List.of(line1, line2));
 
@@ -142,7 +135,7 @@ public class Main {
 
         DishOrder line = new DishOrder();
         line.setDish(dessert);
-        line.setQuantity(3);
+        line.setQuantity(1);   // ← 1 gâteau → 0.3 kg chocolat + 0.2 kg beurre (doit passer)
 
         order.setDishOrderList(List.of(line));
 
