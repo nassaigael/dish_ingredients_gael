@@ -7,6 +7,8 @@ public class Order {
     private String reference;
     private Instant creationDatetime;
     private List<DishOrder> dishOrderList;
+    private OrderType type;
+    private OrderStatus status;
 
     public Integer getId() {
         return id;
