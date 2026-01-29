@@ -87,4 +87,17 @@ public class Order {
     public int hashCode() {
         return Objects.hash(id, reference, creationDatetime, dishOrderList);
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Order{");
+        sb.append("id=").append(id);
+        sb.append(", reference='").append(reference).append('\'');
+        sb.append(", creationDatetime=").append(creationDatetime);
+        sb.append(", dishOrderList=").append(dishOrderList);
+        sb.append(", type=").append(type);
+        sb.append(", status=").append(status);
+        sb.append('}');
+        return sb.toString();
+    }
 }
