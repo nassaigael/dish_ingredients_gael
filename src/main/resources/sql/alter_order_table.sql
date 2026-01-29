@@ -1,4 +1,11 @@
 ALTER TABLE "order"
     ADD COLUMN total_ht NUMERIC(12, 2) NOT NULL DEFAULT 0,
     ADD COLUMN total_ttc NUMERIC(12, 2) NOT NULL DEFAULT 0;
+
+CREATE TYPE order_type AS ENUM ('EAT_IN', 'TAKE_AWAY');
+CREATE TYPE order_status AS ENUM ('CREATED', 'READY', 'DELIVERED');
+
+ALTER TABLE "order"
+    ADD COLUMN order_type order_type NOT NULL DEFAULT 'EAT_IN',
+    ADD COLUMN status order_status NOT NULL DEFAULT 'CREATED';
     
