@@ -22,7 +22,10 @@ public class DataRetriever {
                 Integer idOrder = resultSet.getInt("id");
                 order.setId(idOrder);
                 order.setReference(resultSet.getString("reference"));
-                order.setCreationDatetime(resultSet.getTimestamp("creation_datetime").toInstant());
+                order.setCreationDatetime(resultSet.getTimestamp("creation_datetime")
+                        .toInstant());
+                order.setType(OrderType.valueOf(resultSet.getString("order_type")));
+                order.setStatus(OrderStatus.valueOf(resultSet.getString("status")));
                 order.setDishOrderList(findDishOrderByIdOrder(idOrder));
                 return order;
             }
