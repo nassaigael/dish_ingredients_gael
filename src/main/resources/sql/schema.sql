@@ -1,79 +1,49 @@
-create type dish_type as enum ('STARTER', 'MAIN', 'DESSERT');
+CREATE TYPE dish_type AS ENUM ('STARTER', 'MAIN', 'DESSERT');
+CREATE TYPE ingredient_category AS ENUM ('VEGETABLE', 'ANIMAL', 'MARINE', 'DAIRY', 'OTHER');
+CREATE TYPE unit AS ENUM ('PCS', 'KG', 'L');
+CREATE TYPE movement_type AS ENUM ('IN', 'OUT');
 
-
-create table dish
-(
-    id        serial primary key,
-    name      varchar(255),
-    dish_type dish_type
+CREATE TABLE dish (
+                      id            SERIAL PRIMARY KEY,
+                      name          VARCHAR(255) NOT NULL,
+                      dish_type     dish_type,
+                      selling_price NUMERIC(10, 2)
 );
 
-create type ingredient_category as enum ('VEGETABLE', 'ANIMAL', 'MARINE', 'DAIRY', 'OTHER');
-
-create table ingredient
-(
-    id       serial primary key,
-    name     varchar(255),
-    price    numeric(10, 2),
-    category ingredient_category
+CREATE TABLE ingredient (
+                            id            SERIAL PRIMARY KEY,
+                            name          VARCHAR(255) NOT NULL,
+                            price         NUMERIC(10, 2),
+                            category      ingredient_category,
+                            initial_stock NUMERIC(10, 2) DEFAULT 0
 );
 
-alter table dish
-    add column if not exists price numeric(10, 2);
-
-alter table dish
-    rename column price to selling_price;
-
-alter table ingredient
-    drop column if exists id_dish;
-
-alter table ingredient
-    add column if not exists required_quantity numeric(10, 2);
-
-alter table ingredient
-    drop column if exists required_quantity;
-
-create type unit as enum ('PCS', 'KG', 'L');
-
-create table if not exists dish_ingredient
-(
-    id                serial primary key,
-    id_ingredient     int,
-    id_dish           int,
-    required_quantity numeric(10, 2),
-    unit              unit,
-    foreign key (id_ingredient) references ingredient (id),
-    foreign key (id_dish) references dish (id)
+CREATE TABLE dish_ingredient (
+                                 id                SERIAL PRIMARY KEY,
+                                 id_dish           INT REFERENCES dish(id),
+                                 id_ingredient     INT REFERENCES ingredient(id),
+                                 required_quantity NUMERIC(10, 2),
+                                 unit              unit
 );
 
-create type movement_type as enum ('IN', 'OUT');
-
-create table if not exists stock_movement
-(
-    id                serial primary key,
-    id_ingredient     int,
-    quantity          numeric(10, 2),
-    unit              unit,
-    type              movement_type,
-    creation_datetime timestamp without time zone,
-    foreign key (id_ingredient) references ingredient (id)
+CREATE TABLE "order" (
+                         id                SERIAL PRIMARY KEY,
+                         reference         VARCHAR(255) UNIQUE,
+                         creation_datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-alter table ingredient
-    add column if not exists initial_stock numeric(10, 2);
-
-create table if not exists "order"
-(
-    id                serial primary key,
-    reference         varchar(255),
-    creation_datetime timestamp without time zone
+CREATE TABLE dish_order (
+                            id       SERIAL PRIMARY KEY,
+                            id_order INT REFERENCES "order"(id),
+                            id_dish  INT REFERENCES dish(id),
+                            quantity INT NOT NULL
 );
 
-create table if not exists dish_order
-(
-    id       serial primary key,
-    id_order int references "order" (id),
-    id_dish  int references dish (id),
-    quantity int
+CREATE TABLE stock_movement (
+                                id                SERIAL PRIMARY KEY,
+                                id_ingredient     INT REFERENCES ingredient(id),
+                                quantity          NUMERIC(10, 2),
+                                unit              unit,
+                                type              movement_type,
+                                creation_datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
