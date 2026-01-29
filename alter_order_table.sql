@@ -1,0 +1,4 @@
+ALTER TABLE "order"
+    ADD COLUMN total_ht NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    ADD COLUMN total_ttc NUMERIC(12, 2) NOT NULL DEFAULT 0;
+    
