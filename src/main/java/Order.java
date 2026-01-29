@@ -42,16 +42,6 @@ public class Order {
         this.dishOrderList = dishOrderList;
     }
 
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", reference='" + reference + '\'' +
-                ", creationDatetime=" + creationDatetime +
-                ", dishOrderList=" + dishOrderList +
-                '}';
-    }
-
     Double getTotalAmountWithoutVat() {
         throw new RuntimeException("Not implemented");
     }
@@ -60,12 +50,6 @@ public class Order {
         throw new RuntimeException("Not implemented");
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Order order)) return false;
-        return Objects.equals(id, order.id) && Objects.equals(reference, order.reference) && Objects.equals(creationDatetime, order.creationDatetime) && Objects.equals(dishOrderList, order.dishOrderList);
-    }
 
     public OrderType getType() {
         return type;
