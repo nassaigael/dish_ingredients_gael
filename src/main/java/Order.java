@@ -84,6 +84,12 @@ public class Order {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Order order)) return false;
+        return Objects.equals(getId(), order.getId()) && Objects.equals(getReference(), order.getReference()) && Objects.equals(getCreationDatetime(), order.getCreationDatetime()) && Objects.equals(getDishOrderList(), order.getDishOrderList()) && getType() == order.getType() && getStatus() == order.getStatus();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(id, reference, creationDatetime, dishOrderList);
     }
