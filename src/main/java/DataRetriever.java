@@ -356,22 +356,38 @@ public class DataRetriever {
     }
 
     private void checkStockSufficiency(Order order) {
-        if (order.getDishOrderList() == null) return;
+        if (order.getDishOrderList() == null || order.getDishOrderList().isEmpty()) {
+            return;
+        }
 
         for (DishOrder line : order.getDishOrderList()) {
             Dish dish = line.getDish();
+            if (dish == null || dish.getDishIngredients() == null) {
+                continue;
+            }
+
             int qtyWanted = line.getQuantity();
 
             for (DishIngredient di : dish.getDishIngredients()) {
                 Ingredient ing = di.getIngredient();
+                if (ing == null) continue;
+
                 double needed = di.getQuantity() * qtyWanted;
 
                 StockValue current = ing.getStockValueAt(Instant.now());
-                if (current == null || current.getQuantity() < needed) {
+
+                double available = (current != null) ? current.getQuantity() : 0.0;
+                Unit unit = (current != null && current.getUnit() != null) ? current.getUnit() : di.getUnit();
+
+                if (available < needed) {
                     throw new RuntimeException(
-                            "Stock insuffisant pour l'ingrédient '" + ing.getName() + "' " +
-                                    "(besoin: " + needed + " " + di.getUnit() + ", disponible: " +
-                                    (current == null ? 0 : current.getQuantity()) + " " + current.getUnit() + ")"
+                            String.format(
+                                    "Stock insuffisant pour l'ingrédient '%s' " +
+                                            "(besoin: %.2f %s, disponible: %.2f %s)",
+                                    ing.getName(),
+                                    needed, di.getUnit(),
+                                    available, unit
+                            )
                     );
                 }
             }
